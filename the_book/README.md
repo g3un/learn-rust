@@ -1,5 +1,4 @@
 # The book
-
 ## Table of Contents
 
 - [Installation](#installation)
@@ -7,6 +6,10 @@
     - [Troubleshooting](#troubleshooting)
     - [Updating and Uninstalling](#updating-and-uninstalling)
     - [Local documentation](#local-documentation)
+- [Hello, world!](#hello-world)
+    - [Creating a project directory](#creating-a-project-directory)
+    - [Writing and running a Rust program](#writing-and-running-a-rust-program)
+    - [Anatomy of a Rust program](#anatomy-of-a-rust-program)
 
 ## Installation
 
@@ -45,3 +48,34 @@ $ rustup self uninstall
 # To read the local documentation in your browser
 $ rustup doc
 ```
+
+## Hello, world!
+
+### Creating a project directory
+
+```shell
+$ mkdir hello_world
+$ cd hello_world
+```
+
+### Writing and running a Rust program
+
+Create `main.rs` and enter the code
+
+```rust
+// main.rs
+fn main() {
+    println!("Hello, world!");
+}
+```
+
+```shell
+$ rustc main.rs
+$ ./main
+> Hello, world!
+```
+
+### Anatomy of a Rust program
+
+`!` means that you're calling a **macro** instead of a normal function.
+And that macros don't always follow the same rules as functions.
