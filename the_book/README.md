@@ -10,6 +10,10 @@
     - [Creating a project directory](#creating-a-project-directory)
     - [Writing and running a Rust program](#writing-and-running-a-rust-program)
     - [Anatomy of a Rust program](#anatomy-of-a-rust-program)
+- [Hello, Cargo!](#hello-cargo)
+    - [Creating a project with Cargo](#creating-a-project-with-cargo)
+    - [Building and Running a Cargo project](#building-and-running-a-cargo-project)
+    - [Building for release](#building-for-release)
 
 ## Installation
 
@@ -79,3 +83,37 @@ $ ./main
 
 `!` means that you're calling a **macro** instead of a normal function.
 And that macros don't always follow the same rules as functions.
+
+## Hello, Cargo!
+
+### Creating a project with Cargo
+
+```shell
+$ cargo new hello_cargo
+$ cd hello_cargo
+```
+
+If you want to use a version control system (e.g. Git), use `--vcs` flag.
+
+`Cargo.toml` is a configuration file for this project.
+And, your source files live inside the `src/` directory.
+
+### Building and Running a Cargo project
+
+```shell
+$ cargo build
+$ ./target/debug/hello_cargo
+
+# or
+
+$ cargo run
+```
+
+If you don't want an executable, use `cargo check` command.
+It's much faster than `cargo buiild`.
+
+### Building for release
+
+`cargo build --release` is compile with optimizations.
+The optimizations make your Rust code run faster,
+  but turning them on lengthens the time it takes for your program to compile.
