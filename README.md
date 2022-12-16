@@ -16,3 +16,14 @@
         - Creating a project with Cargo
         - Building and Running a Cargo project
         - Building for release
+    - Programming a guessing game
+        - Processing a guess
+        - Storing values with variables
+        - Receiving user input
+        - Handling potential failure with `Result`
+        - Printing values with `println!` placeholders
+        - Generating a secret number
+        - Using a crate to get more functionality
+        - Ensuring reproducible builds with the *Cargo.lock* file
+        - Updating a crate to get a new version
+        - Generatiing a random number
