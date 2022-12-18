@@ -27,3 +27,7 @@
         - Ensuring reproducible builds with the *Cargo.lock* file
         - Updating a crate to get a new version
         - Generatiing a random number
+        - Comparing the guess to the secret number
+        - Allowing multiple guesses with loopig
+        - Quitting after a correct guess
+        - Handling invalid input

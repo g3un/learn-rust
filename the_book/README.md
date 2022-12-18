@@ -25,6 +25,10 @@
     - [Ensuring reproducible builds with the *Cargo.lock* file](#ensuring-reproducible-builds-with-the-cargolock-file)
     - [Updating a crate to get a new version](#updating-a-crate-to-get-a-new-version)
     - [Generatiing a random number](#generatiing-a-random-number)
+    - [Comparing the guess to the secret number](#comparing-the-guess-to-the-secret-number)
+    - [Allowing multiple guesses with loopig](#allowing-multiple-guesses-with-loopig)
+    - [Quitting after a correct guess](#quitting-after-a-correct-guess)
+    - [Handling invalid input](#handling-invalid-input)
 
 ## Installation
 
@@ -246,18 +250,19 @@ Otherwise, by default, Cargo will only look for versions greater than 0.8.5 and 
 ### Generatiing a random number
 
 ```rust
-// ...
+use std::io;
 use rand::Rng;
 
 fn main() {
-    // ...
+    println!("Guess the number!");
 
     let secret_number = rand::thread_rng().gen_range(1..=100);
 
     println!("The secret number is: {secret_number}");
 
-    // ...
-}
+    println!("Please input your guess.");
+
+    // --snip--
 ```
 
 First we add the line `use rand::Rng`.
@@ -272,3 +277,150 @@ This method is defined by the `Rng` trait.
 The `gen_range()` method takes a range expression as an argument and generates a random number in the range.
 The kine of range expression we're using here takes the form `start..=end` and is inclusive on the lower and upper bounds,
     so we need to specify `1..=100` to request a number between 1 and 100.
+
+### Comparing the guess to the secret number
+
+```rust
+    // --snip--
+
+    println!("You guessed: {guess}");
+
+    match guess.cmp(&secret_number) {
+        Ordering::Less => println!("Too small!"),
+        Ordering::Greater => println!("Too big!"),
+        Ordering::Equal => println!("You win!"),
+    }
+}
+```
+
+The `Ordering` type is another enum and has the variants `Less`, `Greater`, and `Equal`.
+
+The `cmp()` compares two values and can be called on anything that can be compared.
+
+We use a [`match{}`](https://doc.rust-lang.org/stable/book/ch06-02-match.html) expression to decide what to do next.
+A `match{}` is made up of *arms*.
+An arm consists of a *pattern* to match against,
+    and the code that should be run if the value given to `match{}` fits that arm's pattern.
+
+Rust has a strong, static type system.
+When we wrote `let muit guess = String::new()`,
+    Rust was able to infer that `guess` should be a `String` and didn't make us write the type.
+The `secret_number` is a number type.
+Rust cannot compare a string and a number type.
+
+Ultimately, we want to convert the `String` into a real number type,
+    so we can compare it numerically to the secret number.
+
+```rust
+    // --snip--
+
+    io::stdin()
+        .read_line(&mut guess)
+        .expect("Failed to read line");
+
+    let guess: u32 = guess.trim().parse().expect("Please type a number!");
+
+    println!("You guessed: {guess}");
+
+    // --snip--
+```
+
+Rust allows us to shadow the previous value of `guess` with a new one.
+*Shadowing* lets us reuse the `guess` variable name rather than forcing us to create two unique variable.
+
+The `trim()` on a `String` instance will eliminate any whitespace at the beginning and end.
+The [`parse()`](https://doc.rust-lang.org/stable/std/primitive.str.html#method.parse) on a `String` instance converts a string to another type.
+We need to tell Rust the exact number type we want by using `let guess: u32`.
+The colon(`:`) after `guess` tells Rust we'll annotate the variable's type.
+
+The `parse()` returns a `Result` type.
+We'll treat this `Result` the same way by using the `expect()` again.
+
+### Allowing multiple guesses with loopig
+
+The `loop` keyword creates an infinite loop.
+We'll add a loop to give users more chances at guessing the number.
+
+```rust
+    // --snip--
+
+    println!("The secret number is: {secret_number}");
+
+    loop {
+        println!("Please input your guess.");
+
+        // --snip--
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => println!("You win!"),
+        }
+    }
+}
+```
+
+The program will now ask for another guess forever.
+It doesn't seem like the user can quit!
+
+We want to stop the game when the correct number is guessed.
+
+### Quitting after a correct guess
+
+```rust
+        // --snip--
+
+        println!("You guessed: {guess}");
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
+}
+```
+
+Adding the `break` line after `println!()` makes the program exit the loop when the user guesses the secret number correctly.
+
+### Handling invalid input
+
+Let's make the game ignore a non-number so the user can continue guessing.
+
+```rust
+        // --snip--
+
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {guess}");
+
+        // --snip--
+```
+
+We switch from an `exprect()` to a `match{}` to move from crashing on an error to handling the error.
+
+If `parse()` is able to successfully turn the string into a number,
+    it will return an `Ok` that contains the resultant number.
+That `Ok` value will match the first arm's pattern,
+    and the `match{}` will just return the `num` value.
+That number will end up right where we want it in the new `guess` variable we're creating.
+
+If `parse()` is *not* able to turn the string into a number,
+    it will return an `Err` that contains more information about the error.
+The `Err` does match the second arm.
+The underscore(`_`) is a catchall value,
+    We're saying we want to match all `Err` values, no matter what information they have inside them.
+The `continue` go to the next interation of the `loop`.
+So, the program ignores all errors that `parse()` might encounter!
+
+Let's delete the `println!()` that outputs the secret number.
