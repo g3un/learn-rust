@@ -29,6 +29,9 @@
     - [Allowing multiple guesses with loopig](#allowing-multiple-guesses-with-loopig)
     - [Quitting after a correct guess](#quitting-after-a-correct-guess)
     - [Handling invalid input](#handling-invalid-input)
+- [Variables and mutability](#variables-and-mutability)
+    - [Constants](#constants)
+    - [Shadowing](#shadowing)
 
 ## Installation
 
@@ -424,3 +427,85 @@ The `continue` go to the next interation of the `loop`.
 So, the program ignores all errors that `parse()` might encounter!
 
 Let's delete the `println!()` that outputs the secret number.
+
+## Variables and mutability
+
+By default, variables are **immutable**.
+
+```rust
+    let x = 5;
+    println!("The value of x is: {x}");
+    x = 6;
+    println!("The value of x is: {x}");
+```
+
+You should receive an error message regarding an immutability error.
+Because you tried to assign a second value to the immutable `x` variable.
+
+You can make them mutable by adding `mut` in front of the variable name.
+Adding `mut` also conveys intent to future readers of the code by indicating that other parts of the code will be changing this variable's value.
+
+```rust
+    let mut x = 5;
+    println!("The value of x is: {x}");
+    x = 6;
+    println!("The value of x is: {x}");
+```
+
+We're allowed to change the vaule bound to `x` from `5` to `6` when `mut` is used.
+
+### Constants
+
+```rust
+const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;
+```
+
+There are a few differences between constants and variables.
+
+Constants are **always** immutable.
+When you declare constants using the `const`, you *must* annotate the type of the value.
+Constants can be declared in any scope, including the global scope.
+Constants are valid for the entire time a program runs,
+    within the scope in which they were declared.
+Constants may be set only to a constant expression,
+    not the result of a value that could only be computed at runtime.
+
+Rust's naming convention for constants is to use all uppercase with underscores between words.
+
+### Shadowing
+
+You can declare a new variable with the same name as a previous variable.
+We can shadow a varaible by using the same variable's name and repeating the use of the `let`.
+
+```rust
+    let x = 5;
+
+    let x = x + 1;
+
+    {
+        let x = x * 2;
+        println!("The value of x in the inner scope is: {x}");
+        // The value of x in the inner scope is: 12
+    }
+
+    printl!("The value of x is: {x}");
+    // The value of x is: 6
+```
+
+Shadowing is different from marking a variables as `mut`,
+    because we'll get a compile-time error if we accidentally reassiign to the variable without using the `let`.
+By using `let`, we can perform a few transformations on a value,
+    but have the variable be immutable after those transformations have been completed.
+
+The other difference between `mut` and shadowing is that because we're effectively creating a new variable when we use the `let` again,
+    we can change the type of value but reuse the same name.
+
+```rust
+    let spaces = "    ";
+    let spaces = spaces.len();
+
+    /* compile error
+    let mut spaces = "    ";
+    spaces = spaces.len();
+    */
+```

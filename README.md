@@ -31,3 +31,6 @@
         - Allowing multiple guesses with loopig
         - Quitting after a correct guess
         - Handling invalid input
+    - Variables and mutability
+        - Constants
+        - Shadowing
