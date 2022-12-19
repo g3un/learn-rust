@@ -34,3 +34,6 @@
     - Variables and mutability
         - Constants
         - Shadowing
+    - Data types
+        - Scalar types
+        - Compound types
