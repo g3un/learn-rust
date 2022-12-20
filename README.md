@@ -37,3 +37,7 @@
     - Data types
         - Scalar types
         - Compound types
+    - Functions
+        - Parameters
+        - Statements and expressions
+        - Functions with return values

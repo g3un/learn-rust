@@ -35,6 +35,10 @@
 - [Data types](#data-types)
     - [Scalar types](#scalar-types)
     - [Compound types](#compound-types)
+- [Functions](#functions)
+    - [Parameters](#parameters)
+    - [Statements and expressions](#statements-and-expressions)
+    - [Functions with return values](#functions-with-return-values)
 
 ## Installation
 
@@ -613,4 +617,74 @@ You can also initialize an array to contain the same value for each element by s
 
     // [3, 3, 3, 3, 3]
     let a = [3; 5];
+```
+
+## Functions
+
+You've seen the `fn` keyword, which allows you to declare new functions.
+
+Rust code uses *snake case* as the conventional style for function and variable names. (e.g. `do_some()`)
+
+### Parameters
+
+We can define functions to have *parameters*.
+Technically, the concrete values are called *arguments*,
+    but in casual conversation,
+    people tend to use the words *parameter* and *argument* interchangeably.
+
+```rust
+fn main() {
+    another_function(5);
+}
+
+fn another_function(x: i32) {
+    println!("The value of x is: {x}");
+}
+```
+
+In function signatures, you *must* decalre the type of each parameter.
+
+### Statements and expressions
+
+- **Statements** are instructions that perform some action and do not return a value.
+- Expressions evaluate to a resultant value.
+
+Function bodies are made up of a series of statements optionally ending in an expression.
+Rust is an expression-based language,
+    this is an important distinction to understand.
+
+```rust
+    let y = {
+        let x = 3;
+        x + 1
+    };
+
+    // The value of y is 4
+    println!("The value of y is: {y}");
+```
+
+Note that the `x + 1` line doesn't have a semicolon at the end.
+Expressions do not include ending semicolons.
+If you add a semicolon to the end of an expression, you turn it into a statement,
+    and it will then not return a value.
+
+### Functions with return values
+
+We don't name return values,
+    but we must declare their type after an arrow(`->`).
+In Rust, the return value of the function is synonymous with the value of the final expression in the block of the body of a function.
+You can return early from a function by using the `return` keyword and specifying a value,
+    but most functions return the last expression implicitly.
+
+```rust
+fn main() {
+    let x = plus_one(5);
+
+    // The value of x is 6
+    println!("The value of x is: {x}");
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
 ```
