@@ -50,6 +50,9 @@
     - [Memory and allocation](#memory-and-allocation)
     - [Ownership and functions](#ownership-and-functions)
     - [Return values and scope](#return-values-and-scope)
+- [References and borrowing](#references-and-borrowing)
+    - [Mutable references](#mutable-references)
+    - [Dangling references](#dangling-references)
 
 ## Installation
 
@@ -1045,3 +1048,137 @@ fn takes_and_gives_back(a_string: String) -> String {
 
 What if we want to let a function use a value but not take ownership?
 Rust has a feature for using a value without transferring ownership, called *references*.
+
+## References and borrowing
+
+A *reference* is like a pointer in that it's an address we can follow to access the data stored at that address.
+Unlike a pointer, a reference is guaranteed to point to a valid value of a particular type for the life of that reference.
+
+```rust
+fn main() {
+    let s1 = String::from("Hello");
+
+    let len = calculate_length(&s1);
+
+    println!("The length of '{}' is {}.", s1, len);
+}
+
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+```
+
+The `&s1` syntax lets us create a reference that *refers* to the value of `s1` but does not own it.
+Because it does not own it,
+    the value it points to will not be dropped when the reference stops being used.
+
+We call the action of creating a reference *borrowing*.
+
+```rust
+fn main() {
+    let s = String::from("Hello");
+
+    change(&s);
+}
+
+fn change(some_string: &String) {
+    // Compile error
+    some_string.push_str(", world!");
+}
+```
+
+Just as variables are immutable by default, so are references.
+We're not allowed to modify something we have a reference to.
+
+### Mutable references
+
+We can fix the code to allow us to modify a borrowed value.
+
+```rust
+fn main() {
+    let mut s = String::from("Hello");
+
+    change(&mut s);
+}
+
+fn change(some_string: &mut String) {
+    some_string.push_str(", world!");
+}
+```
+
+Mutable references have one big restriction:
+    if you have a mutable reference to a value,
+    you can have no other references to that value.
+
+```rust
+    let mut s = String::from("Hello");
+
+    // Compile error
+    let r1 = &mut s;
+    let r2 = &mut s;
+
+    println!("r1 = {}, r2 = {}", r1, r2);
+```
+
+Rust enforces a similar rule for combining mutable and immutable references.
+
+```rust
+    let mut s = String::from("Hello");
+
+    // Compile error
+    let r1 = &s;     // No problem
+    let r2 = &s;     // No problem
+    let r3 = &mut s; // Big problem
+
+    println!("r1 = {}, r2 = {}, r3 = {}", r1, r2, r3);
+```
+
+Note that a reference's scope starts from where it is introduced and continues through the last time that reference is used.
+
+```
+    let mut s = String::from("Hello");
+
+    let r1 = &s;
+    let r2 = &s;
+    println!("r1 = {}, r2 = {}", r1, r2);
+
+    let r3 = &mut s;         // No problem
+    println!("r3 = {}", r3);
+```
+
+### Dangling references
+
+In Rust, the compiler guarantees that references will never be dangling references:
+    if you have a reference to some data,
+    the compiler will ensure that the data will not go out of scope before the reference to the data does.
+
+```rust
+fn main() {
+    let reference_to_nothing = dangle();
+}
+
+// Compile error
+fn dangle() -> &String {
+    let s = String::from("Hello");
+
+    &s
+}
+```
+
+> this function's return type contains a borrowed value,
+>     but there is no value for it to be borrowed from
+
+Because `s` is created inside `dangle`,
+    when the code of `dangle` is finished,
+    `s` will be deallocated.
+But we tried to return a reference to it.
+
+The solution here is to return the `String` directly.
+
+```rust
+fn no_dangle() -> String {
+    let s = String::from("Hello");
+
+    s
+}
+```

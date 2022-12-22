@@ -52,3 +52,6 @@
         - Memory and allocation
         - Ownership and functions
         - Return values and scope
+    - References and borrowing
+        - Mutable references
+        - Dangling references
