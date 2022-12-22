@@ -849,7 +849,7 @@ While the condition is `true`, the loop runs.
     println!("LIFTOFF!!!");
 ```
 
-#### Lopping through a collection with `for`
+#### Looping through a collection with `for`
 
 You can use a `for` loop and execute some code for each item in a collection.
 
