@@ -41,3 +41,4 @@
         - Parameters
         - Statements and expressions
         - Functions with return values
+    - Comments

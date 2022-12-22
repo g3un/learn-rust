@@ -39,6 +39,7 @@
     - [Parameters](#parameters)
     - [Statements and expressions](#statements-and-expressions)
     - [Functions with return values](#functions-with-return-values)
+- [Comments](#comments)
 
 ## Installation
 
@@ -687,4 +688,14 @@ fn main() {
 fn plus_one(x: i32) -> i32 {
     x + 1
 }
+```
+
+## Comments
+
+```rust
+// A line comment
+
+/*
+ * A block comment
+ */
 ```
