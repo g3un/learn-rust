@@ -53,6 +53,9 @@
 - [References and borrowing](#references-and-borrowing)
     - [Mutable references](#mutable-references)
     - [Dangling references](#dangling-references)
+- [The slice type](#the-slice-type)
+    - [String slices](#string-slices)
+    - [Other slices](#other-slices)
 
 ## Installation
 
@@ -1182,3 +1185,162 @@ fn no_dangle() -> String {
     s
 }
 ```
+
+## The slice type
+
+*Slice* let you reference a contiguous sequence of elements in a collection rather than the whole collection.
+A slice is a kind of reference, so it does not have ownership.
+
+Here’s a small programming problem:
+    write a function that takes a string of words separated by spaces and returns the first word it finds in that string.
+If the function doesn’t find a space in the string,
+    the whole string must be one word,
+    so the entire string should be returned.
+
+We don't really have a way to talk about *part* of a string.
+However, we could return the index of the end of the word, indicated by a space.
+
+```rust
+fn first_word(s: &String) -> usize {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return i;
+        }
+    }
+
+    s.len()
+}
+```
+
+We'll convert our `String` to an array of bytes using the `as_bytes()`.
+Next, we create an iterator over the array of bytes using the `iter()`.
+The `enumerate()` wraps the result of `iter()` and returns each element as part of a tuple instead.
+
+We now have a way to find out the index of the end of the first word in the string,
+    but there's a problem.
+We're returning a `usize` on its own,
+    but it's only a meaningful number in the context of the &String.
+There's no guarantee that it will still be valid in the future.
+
+```rust
+fn main() {
+    let mut s = String::from("Hello, world!");
+
+    let word = first_word(&s);
+
+    s.clear();
+
+    // word is now invalid
+}
+```
+
+### String slices
+
+A *string slice* is a reference to part of a `String`.
+
+```rust
+    let s = Stirng::from("hello world");
+
+    let hello = &s[0..5];
+    let world = &s[6..11];
+
+    let slice = &s[..2];
+    let slice = &s[6..];
+
+    let len = s.len();
+
+    let slice = &s[0..len];
+    let slice = &s[..];
+```
+
+Let's rewrite `first_word()` to return a slice.
+The type that signifies *string slice* is written as `&str`.
+
+```rust
+fn first_word(s: &String) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..1];
+        }
+    }
+
+    &s[..]
+}
+```
+
+Slice is a immutable refenrence.
+
+```rust
+fn main() {
+    let mut s = String::from("hello world");
+
+    let word = first_word(&s);
+
+    // Compile error
+    s.clear();
+
+    println!("the first word is: {}", word);
+}
+```
+
+Rust disallows the mutable reference in `clear()` and the immutable reference in `word` from existing at the same time, and compilation fails.
+
+#### String literals as slices
+
+Recall that we talked about literals being stored inside the binary.
+Now that we know about slices, we can properly understand string literals.
+
+```rust
+    let s = "Hello, world!";
+```
+
+The type of `s` here is `&str`:
+    it's a slice pointing to that specific point of the binary.
+This is also why string literals are immutable.
+
+#### String slices as parameters
+
+Knowing that you can take slices of literals and `String` values leads us to one more improvement on `first_word()`, and that's its signature.
+
+```rust
+fn first_word(s: &String) -> &str {
+```
+
+A more experienced Rustacean would write the signature to:
+
+```rust
+fn first_word(s: &str) -> &str {
+```
+
+Because it allows us to use the same functioin on both `&String` values and `&str` values.
+
+If we have a string slice, we can pass that directly.
+If we have a `String`, we can pass a slice of the `String` or a reference to the `String`.
+This flexibility takes advantage of *deref coercions*.
+
+```rust
+    let my_string = String::from("hello world");
+
+    let word = first_word(&my_string[..]);
+    let word = first_word(&my_string);
+
+    let my_string_literal = "hello world");
+
+    let word = first_word(&my_string_literal[..]);
+    let word = first_word(my_string_literal);
+```
+
+### Other slices
+
+```rust
+    let a = [1, 2, 3, 4, 5];
+
+    let slice = &a[1..3];
+```
+
+This slice has the type `&[i32]`.
+It works the same way as string slices do.

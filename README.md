@@ -55,3 +55,6 @@
     - References and borrowing
         - Mutable references
         - Dangling references
+    - The slice type
+        - String slices
+        - Other slices
