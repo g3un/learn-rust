@@ -40,6 +40,9 @@
     - [Statements and expressions](#statements-and-expressions)
     - [Functions with return values](#functions-with-return-values)
 - [Comments](#comments)
+- [Control flow](#control-flow)
+    - [`if` expressions](#if-expressions)
+    - [Repetition with loops](#repetition-with-loops)
 
 ## Installation
 
@@ -483,7 +486,7 @@ Rust's naming convention for constants is to use all uppercase with underscores 
 ### Shadowing
 
 You can declare a new variable with the same name as a previous variable.
-We can shadow a varaible by using the same variable's name and repeating the use of the `let`.
+We can shadow a variable by using the same variable's name and repeating the use of the `let`.
 
 ```rust
     let x = 5;
@@ -698,4 +701,175 @@ fn plus_one(x: i32) -> i32 {
 /*
  * A block comment
  */
+```
+
+## Control flow
+
+### `if` expressions
+
+An `if` expression allows you to branch your code depending on conditions.
+
+```rust
+    let number = 3;
+
+    if number < 5 {
+        println!("Condition was true");
+    } else {
+        println!("Condition was false");
+    }
+```
+
+All `if` expressions start with the keyword `if`, followed by a condition.
+Blocks of code associated with the conditions in `if` expressions are sometimes called *arms*.
+
+If the condition isn't a `bool`, we'll get an error.
+
+```rust
+    let number = 3;
+
+    // Compile error
+    if nuimber {
+        println!("number was true");
+    }
+
+    // We can change the `if` expression to ...
+    if number != 0 {
+        println!("number was something other than zero");
+    }
+```
+
+#### Handling multiple conditions with `else if`
+
+```rust
+    let number = 5;
+
+    if number % 4 == 0 {
+        // Pass this block
+    } else if number % 3 == 0 {
+        // Run this block
+        println!("number is divisible by 3");
+    } else if number % 2 == 0 {
+        // Pass this block
+    } else {
+        // Pass this block
+    }
+```
+
+Rust only executes the block for the first `true` condition,
+    and once it finds one,
+    it doesn't even check the rest.
+
+Using too many `else if` expressions can clutter your code,
+    so if you have more than one,
+    you might want to refactor your code.
+
+#### Using `if` in a `let` statemnet
+
+We can use it on the right side of a `let` statement to assign the outcome to a variable.
+
+```rust
+    let condition = true;
+    let number = if condition { 5 } else { 6 };
+
+    // The value of number is: 5
+    println!("The value of number is: {number}");
+```
+
+The values that have the potential to be results from each arm of the `if` must be the same type.
+
+### Repetition with loops
+
+The `loop` keyword tells Rust to execute a block of code over and over again forever or until you explicitly tell it to stop.
+
+You can place the `break` keyword within the loop to tell the program when to stop executing the loop.
+Also you can use `continue` keyword,
+    which in a loop tells the program to skip over any remaining code in this iteration of the loop and go to the next iteration.
+
+#### Returning values from loops
+
+You can add the value you want returned after the `break` expression you use to stop the loop.
+
+```rust
+    let mut counter = 0;
+
+    let result = loop {
+        counter += 1;
+
+        if counter == 10 {
+            break counter * 2;
+        }
+    };
+
+    // The result is 20
+    println!("The result is {result}");
+```
+
+#### Loop labels to disambiguate between multiple loops
+
+If you have loops within loops, `break` and `continue` apply to the innermost loop at that point.
+You can optionally specify a *loop label* on a loop that you can then use with `break` or `continue` to specify that those keywords apply to the labeled loop instead of the innermost loop.
+Loop labels must begin with a single quote.
+
+```rust
+    let mut count = 0;
+    'counting_up: loop {
+        println!("count = {count}");
+        let mut remaining = 10;
+
+        loop {
+            println!("remaining = {remaining}");
+            if remaining == 9 {
+                break;
+            }
+            if count == 2 {
+                break 'counting_up;
+            }
+            remaining -= 1;
+        }
+
+        count += 1;
+    }
+    println!("End count = {count}");
+```
+
+#### Conditional loops with `while`
+
+A program will often need to evaluate a condition within a loop.
+While the condition is `true`, the loop runs.
+
+```rust
+    let mut number = 3;
+
+    while number != 0 {
+        println!("{number}!");
+
+        number -= 1;
+    }
+
+    println!("LIFTOFF!!!");
+```
+
+#### Lopping through a collection with `for`
+
+You can use a `for` loop and execute some code for each item in a collection.
+
+```rust
+    let a = [10, 20, 30, 40, 50];
+
+    for element in a {
+        println!("The value is: {element}");
+    }
+```
+
+The safety and conciseness of `for` loops make them the most commonly used loop construct in Rust.
+Even in situations in which you want to run some code a certain nuumber of times,
+    as in the countdown example that used a `while` loop,
+    most Rustaceans would use a `for` loop.
+
+```rust
+    for number in (1..4).rev() {
+        println!("{number}!");
+    }
+
+    println!("LIFTOFF!!!");
 ```

@@ -42,3 +42,6 @@
         - Statements and expressions
         - Functions with return values
     - Comments
+    - Control flow
+        - `if` expressions
+        - Repetition with loops
