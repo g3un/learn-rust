@@ -43,6 +43,13 @@
 - [Control flow](#control-flow)
     - [`if` expressions](#if-expressions)
     - [Repetition with loops](#repetition-with-loops)
+- [What is ownership?](#what-is-ownership)
+    - [Ownership rules](#ownership-rules)
+    - [Variable scope](#variable-scope)
+    - [The `String` type](#the-string-type)
+    - [Memory and allocation](#memory-and-allocation)
+    - [Ownership and functions](#ownership-and-functions)
+    - [Return values and scope](#return-values-and-scope)
 
 ## Installation
 
@@ -873,3 +880,168 @@ Even in situations in which you want to run some code a certain nuumber of times
 
     println!("LIFTOFF!!!");
 ```
+
+## What is ownership?
+
+*Ownership* is a set of rules that govern how a Rust program manages memory.
+
+### Ownership rules
+
+Keep these rules in mind.
+
+- Each value in Rust has on *owner*
+- There can only be one owner at a time.
+- When the owner goes out of scope, the value will be dropped.
+
+### Variable scope
+
+```rust
+    {                      // s is not valid here
+        let s = "hello";   // s is valid from this point forward
+
+        // Do stuff with s
+    }                      // s is no longer valid
+```
+
+In other words, there are two important points in time here:
+
+- When `s` comes into scope, it is valid.
+- It remains valid until it goes *out of* scope.
+
+### The `String` type
+
+To illustrate the rules of ownership,
+    we need a data type that is more complex.
+The `String` type manages data allocated on the heap and as such is able to store an amount of text that is unknown to us at compile time.
+And, this kind of string *can* be mutated.
+
+```rust
+    let mut s = String::from("Hello");
+
+    s.push_str(", world!");
+
+    // Hello, world!
+    println!("{}", s);
+```
+
+### Memory and allocation
+
+With the `String` type,
+    in order to support a mutable, growable piece of text,
+    we need to allocate an amount of memory on the heap to hold the contents.
+
+- The memory must be requested from the memory allocator at runtime.
+- We need a way of returning this memory to the allocator when we're done with our `String`.
+
+In Rust, the memory is automatically returned once the variable that owns it goes out of scope.
+
+```rust
+    {
+        let s = String::from("Hello"); // s is valid
+
+        // Do stuff with s
+    }                                  // s is no longer valid
+```
+
+When a variable goes out of scope, Rust calls a special function for us.
+This function is called [`drop`](https://doc.rust-lang.org/stable/std/ops/trait.Drop.html#tymethod.drop),
+    and it's where the author of `String` can put the code to return the memory.
+
+#### Variables and data interacting with move
+
+```rust
+    let s1 = String::from("Hello");
+    let s2 = s1;
+
+    // Compile error
+    println!("{}, world!", s1);
+```
+
+Rust invalidate the first variable, instead of being called a shallow copy, it's known as a *move*.
+
+#### Variables and data interactin with clone
+
+If we *do* want to deeply copy the heap data of the `String`,
+    we can use a common method called `clone`.
+
+```rust
+    let s1 = String::from("Hello");
+    let s2 = s1.clone();
+
+    // Compile error
+    println!("s1 = {}, s2 = {}", s1, s2);
+```
+
+When you see a call to `clone`,
+    you know that some arbitrary code is being executed and that code may be expensive.
+
+#### Stack-only data: copy
+
+```
+    let x = 5;
+    let y = x;
+
+    println!("x = {}, y = {}", x, y);
+```
+
+We don't have a call to `clone`, but `x` is still valid and wasn't moved into `y`.
+
+The reason is that types such as integers that have a known size at compile time are stoed entirely on the stack,
+    so copies of the actual values are quick to make.
+That means there's no reason we would want to prevent `x` from being valid after we create the variable `y`.
+
+### Ownership and functions
+
+The mechanics of passing a value to a function are similar to those when assigning a value to a variable.
+Passing a variable to a function will move or copy, just as assignment does.
+
+
+```rust
+fn main() {
+    let s = String::from("Hello");
+
+    takes_ownership(s);
+    // s is no longer valid
+
+    let x = 5;
+
+    makes_copy(x);
+
+    println!("x is still valid: {x}");
+}
+
+fn takes_ownership(some_string: String) {
+    println!("{}", some_string);
+}
+
+fn makes_copy(some_integer: i32) {
+    println!("{}", some_integer);
+}
+```
+
+### Return values and scope
+
+Returning values can also transfer ownership.
+
+```rust
+fn main() {
+    let s1 = gives_ownership();
+
+    let s2 = String::from("Hello");
+
+    let s3 = takes_and_gives_back(s2);
+}
+
+fn gives_ownership() -> String {
+    let some_string = String::from("Yours");
+
+    some_string
+}
+
+fn takes_and_gives_back(a_string: String) -> String {
+    a_string
+}
+```
+
+What if we want to let a function use a value but not take ownership?
+Rust has a feature for using a value without transferring ownership, called *references*.

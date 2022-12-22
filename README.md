@@ -45,3 +45,10 @@
     - Control flow
         - `if` expressions
         - Repetition with loops
+    - What is ownership?
+        - Ownership rules
+        - Variable scope
+        - The `String` type
+        - Memory and allocation
+        - Ownership and functions
+        - Return values and scope
