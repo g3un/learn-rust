@@ -56,6 +56,11 @@
 - [The slice type](#the-slice-type)
     - [String slices](#string-slices)
     - [Other slices](#other-slices)
+- [Defining and instantiating structs](#defining-and-instantiating-structs)
+    - [Using the field init shorthand](#using-the-field-init-shorthand)
+    - [Creating instances from other instances with struct update syntax](#creating-instances-from-other-instances-with-struct-update-syntax)
+    - [Using tuple structs without named fields to create different types](#using-tuple-structs-without-named-fields-to-create-different-types)
+    - [Unit-like structs without any fields](#unit-like-structs-without-any-fields)
 
 ## Installation
 
@@ -1344,3 +1349,105 @@ This flexibility takes advantage of *deref coercions*.
 
 This slice has the type `&[i32]`.
 It works the same way as string slices do.
+
+## Defining and instantiating structs
+
+Like tuples, the pieces of a struct cna be different types.
+Unlike with tuples, in a struct you'll name each piece of data so it's clear what the values mean.
+
+```rust
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
+
+fn main() {
+    let mut user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername123"),
+        active: true,
+        sign_in_count: 1,
+    }
+    
+    user1.email = String::from("anotheremail@example.com");
+}
+```
+
+Ruust doesn't allow us to mark only certain fields as mutable.
+
+```rust
+fn build_user(email: String, username: String) -> User {
+    User {
+        email: email,
+        username: username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+### Using the field init shorthand
+
+When the parameter names and the struct field names are exactly the same,
+    we can use the *field init shorthand* syntax.
+
+```rust
+fn build_user(email: String, username: String) -> User {
+    User {
+        email,
+        username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+### Creating instances from other instances with struct update syntax
+
+It's often useful to create a new instance of a struct that includes most of the values from antoher instance,
+    but changes some.
+
+```
+    let user2 = User {
+        email: String::from("another@example.com"),
+        ..user1
+    };
+```
+
+Note that the struct update syntax uses `=` list an assignment;
+    this is because it moves the data.
+In this example, we can no longer use `user`,
+    because the `String` in the `username` field of `user1` was moved into `user2`.
+
+### Using tuple structs without named fields to create different types
+
+Rust also supports struct that look similar to tuples, called *tuple structs*.
+
+```rust
+struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
+
+fn main() {
+    let black = Color(0, 0, 0);
+    let origin = Point(0, 0, 0);
+}
+```
+
+Note that the `black` and `origin` valuues are different types.
+
+### Unit-like structs without any fields
+
+You can also define structs that don't have any fields!
+These are called *unit-like structs*.
+Unit-like structs can be useful when you need to implement a trait on some type,
+    but don'y have any data that you want to store in the type itself.
+
+```
+struct AlwaysEqual;
+
+fn main() {
+    let subject = AlwaysEqual;
+}
+```

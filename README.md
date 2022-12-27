@@ -58,3 +58,8 @@
     - The slice type
         - String slices
         - Other slices
+    - Defining and instantiating structs
+        - Using the field init shorthand
+        - Creating instances from other instances with struct update syntax
+        - Using tuple structs without named fields to create different types
+        - Unit-like structs without any fields
