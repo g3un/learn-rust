@@ -1548,7 +1548,7 @@ But with structs, the way `println!` should format the output is less clear beca
 Due to this ambiguity, Rust doesn't try to guess what we want,
     and structs don't have a provided implementation of `Display` to use with `println!` and the `{}` placeholder.
 
-Putting the specifier `:?` inside the curly brackets te;;s `println!` we want to use an output format called `Debug`.
+Putting the specifier `:?` inside the curly brackets tells `println!` we want to use an output format called `Debug`.
 The `Debug` trait enables us to print out struct in a way that is useful for developers so we can see its value while we're debugging our code.
 
 ```rust
