@@ -1,4 +1,5 @@
 # The book
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -61,6 +62,10 @@
     - [Creating instances from other instances with struct update syntax](#creating-instances-from-other-instances-with-struct-update-syntax)
     - [Using tuple structs without named fields to create different types](#using-tuple-structs-without-named-fields-to-create-different-types)
     - [Unit-like structs without any fields](#unit-like-structs-without-any-fields)
+- [An Example Program Using Structs](#an-example-program-using-structs)
+    - [Refactoring with Tuples](#refactoring-with-tuples)
+    - [Refactoring with Structs: Adding More Meaning](#refactoring-with-structs-adding-more-meaning)
+    - [Adding Useful Functionality with Derived Traits](#adding-useful-functionality-with-derived-traits)
 
 ## Installation
 
@@ -1451,3 +1456,150 @@ fn main() {
     let subject = AlwaysEqual;
 }
 ```
+
+## An Example Program Using Structs
+
+```rust
+fn main() {
+    let width1 = 30;
+    let height1 = 50;
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(width1, height1)
+    );
+}
+
+fn area(width: u32, height: u32) -> u32 {
+    width * height
+}
+```
+
+Take the width and height of a rectangle specified in pixels and calculate the area of the rectangle.
+
+We can do more to make this code clear and readable.
+
+```rust
+fn area(width: u32, height: u32) -> u32 {
+```
+
+The `area()` is supposed to calcuate the area of one rectangle,
+    but the function we wrote has two parameters,
+    and it's not clear anywhere in our program that the parameters are related.
+
+### Refactoring with Tuples
+
+```rust
+fn main() {
+    let rect1 = (30, 50);
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(rect1)
+    );
+}
+
+fn area(dimensions: (u32, u32)) -> u32 {
+    dimensions.0 * dimensions.1
+}
+```
+
+This version is less clear:
+    tuples don't name their elements,
+    so we have to index into the parts of the tuple,
+    making out calculation less obvious.
+
+This would be even harder for someone else to figure out and keep in mind if they were to use our code.
+Because we haven't conveyed the meaning of our data in our code,
+    it's now easier to introduce errors.
+
+### Refactoring with Structs: Adding More Meaning
+
+```rust
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(&rect1)
+    );
+}
+
+fn area(rectangle: &Rectangle) -> u32 {
+    rectangle.width * rectangle.height
+}
+```
+
+### Adding Useful Functionality with Derived Traits
+
+The `println!` can do many kinds of formatting,
+    and by default,
+    the curly brackets tell `println!` to use formatting known as `Display`:
+    outpuut intended for direct end  user consumption.
+But with structs, the way `println!` should format the output is less clear because there are more display possibilities.
+Due to this ambiguity, Rust doesn't try to guess what we want,
+    and structs don't have a provided implementation of `Display` to use with `println!` and the `{}` placeholder.
+
+Putting the specifier `:?` inside the curly brackets te;;s `println!` we want to use an output format called `Debug`.
+The `Debug` trait enables us to print out struct in a way that is useful for developers so we can see its value while we're debugging our code.
+
+```rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+
+    println!("rect1 is {:?}", rect1);
+}
+```
+
+Rust *does* include functionality to print out debugging information,
+    but we have to explicitly opt in to make that functionality available for ouur struct.
+To do that, we add the outer atrribute `#[derive(Debug)]`.
+
+When we have larger structs,
+    it's usefule to have outuput that's a bit easier to read;
+    in those cases, we can use `{:#?}` instead of `{:?}` in the `println!` string.
+
+Another way to print out a valuue using the `Debug` format in to use the [`dbg!`](https://doc.rust-lang.org/stable/std/macro.dbg.html),
+    which takes ownership of an expression (as opposed to `println!` that takes a reference),
+    prints the file and line number of where that `dbg!` call occurs in your code along with the resulting valuue of that expression,
+    and returns ownership of the value.
+
+Here's an example where we're interested in the vlaue that gets assigned to the `width` field,
+    as well as the value of the whole struct in `rect1`.
+
+```rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+fn main() {
+    let scale = 2;
+    let rect1 = Rectangle {
+        width: dbg!(30 * scale),
+        height: 50,
+    };
+
+    dbg!(&rect1);
+}
+```
+
+Let's look at how we can continue to refactor this code by turning the `area()` *function* into an `area()` *method* defined on our `Rectangle`.

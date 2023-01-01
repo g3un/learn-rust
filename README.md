@@ -63,3 +63,7 @@
         - Creating instances from other instances with struct update syntax
         - Using tuple structs without named fields to create different types
         - Unit-like structs without any fields
+    - An Example Program Using Structs
+        - Refactoring with Tuples
+        - Refactoring with Structs: Adding More Meaning
+        - Adding Useful Functionality with Derived Traits
