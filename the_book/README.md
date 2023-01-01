@@ -66,6 +66,11 @@
     - [Refactoring with Tuples](#refactoring-with-tuples)
     - [Refactoring with Structs: Adding More Meaning](#refactoring-with-structs-adding-more-meaning)
     - [Adding Useful Functionality with Derived Traits](#adding-useful-functionality-with-derived-traits)
+- [Method Syntax](#method-syntax)
+    - [Defining Methods](#defining-methods)
+    - [Methods with More Parameters](#methods-with-more-parameters)
+    - [Associated Functions](#associated functions)
+    - [Multiple `impl` Blocks](#multiple-impl-blocks)
 
 ## Installation
 
@@ -1603,3 +1608,148 @@ fn main() {
 ```
 
 Let's look at how we can continue to refactor this code by turning the `area()` *function* into an `area()` *method* defined on our `Rectangle`.
+
+## Method Syntax
+
+*Methods* are similar to function.
+Unlike functions, methods are defined within the context of a struct,
+    and their first parameter is always `self`,
+    which represents the instance of the struct the method is being called on.
+
+### Defining Methods
+
+```rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        rect1.area()
+    );
+}
+```
+
+To define the funtion within the context of `Rectanle`,
+    we start an `impl` block for `Rectangle`.
+Everything within this `impl` block will be associated with the `Rectangle` type.
+
+Methods must have a parameter named `self` of type `Self` for their first parameter,
+    so Rust lets you abbreviate this with only the name `self` in the first parameter spot.
+Note that we still need to use the `&` in front of the `self` shorthands to indicate this method borrows the `Self` instance.
+Methods can take ownership of `self`,
+    borrow `self` immutably as we've done here,
+    or borrow `self` mutably,
+    just as they can any other paramter.
+
+The main reason for using methods instead of functions,
+    in addition to providing method syntax and not having to repeat the type of `self` in every method's signature,
+    is for organization.
+
+Note that we can choose to give a method the same name as one of the struct's fields.
+
+```rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+impl Rectangle {
+    fn width(&self) -> bool {
+        self.width > 0
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+
+    if rect1.width() {
+        println!("The rectangle has a nonzero width; it is {}", rect1.width);
+    }
+}
+```
+
+When we use `rect1.width()`, Rust knows we mean the method `width`.
+When we don't use parentheses, Rust knows we mean the field `width`.
+
+### Methods with More Parameters
+
+```rust
+impl Rectangle {
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+    let rect2 = Rectangle {
+        width: 10,
+        height: 40,
+    };
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+}
+```
+
+### Associated Functions
+
+All functions defined within an `impl` block are called *associated functions*.
+We can define associated functions that don't have `self` as their first paramter.
+
+```rust
+impl Rectangle {
+    fn square(size: u32) -> Self {
+        Self {
+            width: size,
+            height: size,
+        }
+    }
+}
+
+fn main() {
+    let sq = Rectangle::square(3);
+}
+```
+
+### Multiple `impl` Blocks
+
+Each struct is allowed to have multiple `impl` blocks.
+
+```rust
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+impl Rectangle {
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+```
+
+There's no reason to separate these methods into multiple `impl` blocks here,
+    but this is valid syntax.

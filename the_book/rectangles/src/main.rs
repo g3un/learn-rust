@@ -4,13 +4,32 @@ struct Rectangle {
     height: u32,
 }
 
+impl Rectangle {
+    fn width(&self) -> bool {
+        self.width > 0
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+
+    fn square(size: u32) -> Self {
+        Self {
+            width: size,
+            height: size,
+        }
+    }
+}
+
 fn main() {
-    let scale = 2;
     let rect1 = Rectangle {
-        width: dbg!(30 * scale),
+        width: 30,
         height: 50,
     };
+    let rect2 = Rectangle::square(20);
 
-    dbg!(&rect1);
+    if rect1.width() {
+        println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    }
 }
 

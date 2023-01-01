@@ -67,3 +67,8 @@
         - Refactoring with Tuples
         - Refactoring with Structs: Adding More Meaning
         - Adding Useful Functionality with Derived Traits
+    - Method Syntax
+        - Defining Methods
+        - Methods with More Parameters
+        - Associated Functions
+        - Multiple `impl` Blocks
